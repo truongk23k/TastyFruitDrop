@@ -2,6 +2,7 @@ import { _decorator, PhysicsSystem2D, Vec2 } from 'cc';
 import { Singleton } from './Singleton';
 import { FruitDatabase } from '../Data/FruitDatabase';
 import { GameState } from './GameEnums';
+import { UIManager } from '../UI/UIManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameManager')
@@ -25,6 +26,7 @@ export class GameManager extends Singleton {
         }
         this.state = GameState.Lose;
         console.log('GAME LOSE');
+        UIManager.getInstance()?.showLose();
     }
 
     setWin() {
@@ -33,5 +35,6 @@ export class GameManager extends Singleton {
         }
         this.state = GameState.Win;
         console.log('GAME WIN');
+        UIManager.getInstance()?.showWin();
     }
 }

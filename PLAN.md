@@ -116,6 +116,8 @@ GameState: Loading → Playing → (Win | Lose) → (Retry | NextLevel | BackToH
 
 ### 2.5. Level Data (thiết kế hướng dữ liệu — data-driven)
 
+> **Đã huỷ (2026-09-14, xem Phase 7):** mục này giữ lại làm tài liệu lịch sử, KHÔNG còn là hướng đang triển khai. Bạn quyết định layout tiếp tục xếp tay trực tiếp trên map trong Editor (giống Phase 2), không dùng JSON/generator nữa.
+
 Toàn bộ level nên định nghĩa bằng file JSON, KHÔNG hard-code trong code, để sau này dễ thêm level mới không cần sửa logic:
 
 ```json
@@ -239,18 +241,22 @@ Scripts/
 
 ### Phase 6 — Điều kiện Thắng / Thua
 - [x] `Core/GameEnums.ts` — `GameState { Playing, Win, Lose }`.
-- [x] `GameManager` giữ `state: GameState`, có `setLose()`/`setWin()` (chặn gọi lại nếu đã Win/Lose), tạm thời chỉ `console.log` (chưa có popup UI).
+- [x] `GameManager` giữ `state: GameState`, có `setLose()`/`setWin()` (chặn gọi lại nếu đã Win/Lose); ngoài `console.log` giờ gọi thêm `UIManager.getInstance()?.showWin()/showLose()` (xem mục Popup bên dưới).
 - [x] `InputManager` chặn xử lý tap nếu `state !== Playing`.
 - [x] `SlotController` gọi `GameManager.setLose()` khi vượt `maxCapacity` (điều kiện thua đã chắc chắn).
 - [ ] Điều kiện thua thứ 2 liên quan tới layout (nếu có) — **vẫn đang mở**, cần bạn xác nhận cơ chế chính xác từ game gốc trước khi code (xem mục 6). Chưa có thông tin mới nên chưa code phần này.
 - [x] `setWin()` đã có sẵn — **giờ đã có người gọi**: `LayoutRowDescent.tryDescend()` gọi `GameManager.getInstance().setWin()` khi hàng cuối cùng bị dọn sạch (Phase 5 đã khép kín phần này).
-- [ ] Popup Win/Lose thật (UI, nút Retry) — hiện tạm log console theo yêu cầu, làm UI sau (đề xuất gộp vào Phase 8 hoặc làm 1 sub-phase UI riêng trước Phase 8).
-- [ ] Verify: cố tình để slot đầy → thấy log `GAME LOSE` + không tap được quả nào nữa. **(Chỉ bạn xác nhận được trong Editor.)**
+- [x] Popup Win/Lose (2026-09-14) — `UI/UIManager.ts` (Singleton, cùng pattern gọi trực tiếp như các Manager khác — không đặt riêng `WinPopup.ts`/`LosePopup.ts` như dự tính gốc ở mục 2.6 vì logic show/hide quá đơn giản, tách 2 class là thừa). `GameManager.setWin()/setLose()` gọi `UIManager.getInstance()?.showWin()/showLose()`. Có sẵn `retry()` (load lại scene hiện tại) để gắn vào Click Event của nút Retry.
+- [x] **Canvas đã dựng sẵn trong scene (2026-09-14, làm qua Cocos Editor MCP — `cocos-code-mode` extension, không phải hand-edit `.scene`):**
+  - Node `Canvas` (root scene) — `UITransform` + `Canvas` (đã gán `cameraComponent` = camera gameplay hiện có, camera này vốn đã bật sẵn layer `UI_2D` trong visibility mask nên không cần tạo thêm camera riêng) + component `UIManager`.
+  - 2 node con `Canvas/WinPanel`, `Canvas/LosePanel` — mỗi node có `UITransform` (contentSize 1280×720, phủ kín màn hình), layer `UI_2D`, **`active = false`** sẵn (ẩn mặc định).
+  - `UIManager.winPanel`/`losePanel` đã trỏ đúng 2 node trên. Đã lưu scene (`save_scene_or_prefab`) và chụp `editorGetScenePreview` xác nhận scene không vỡ (layout quả/vách vẫn hiển thị đúng).
+- [ ] **Cần bạn làm trong Editor (phần thiết kế — mình không tự vẽ UI thay bạn):** vào 2 node `WinPanel`/`LosePanel` (đang ẩn, bật tạm `active=true` lúc chỉnh sửa rồi tắt lại), thêm con bên trong: `Sprite`/`Graphics` làm nền dim, `Label` hiển thị "You Win!"/"Keep Trying", nút Retry (`Button` + ảnh `btn_blue.png`/`btn_green.png`) → Click Event trỏ Node `Canvas` → Component `UIManager` → method `retry`.
+- [ ] Verify: bấm Play, cố tình để slot đầy → thấy log `GAME LOSE` + `LosePanel` hiện lên + không tap được quả nào nữa; dọn sạch layout → `WinPanel` hiện lên. **(Chỉ bạn xác nhận được vì cần bấm Play — MCP hiện chưa có cách giả lập thao tác tap trong Play mode.)**
 
-### Phase 7 — Data-driven Level (chuyển từ hard-code sang JSON)
-- [ ] Viết `LevelData` schema + loader đọc JSON từ `resources/`.
-- [ ] Viết hàm generate ngẫu nhiên layout theo rule "mỗi fruitType số chẵn" (mục 2.5) để test nhiều level nhanh.
-- [ ] Verify: đổi file JSON → layout/level thay đổi mà không cần build lại code.
+### Phase 7 — Data-driven Level: ĐÃ THỬ VÀ HUỶ (2026-09-14), quyết định giữ layout đặt tay
+> Đã từng viết thử hạ tầng data-driven (`Data/LevelData.ts`, `Data/LevelGenerator.ts`, `Data/LevelLoader.ts`, `Level/LevelController.ts`, `resources/Levels/test_level_01.json`) dưới dạng tính năng tùy chọn song song, không đụng level 1 đặt tay. Sau khi thử nghiệm, bạn quyết định **không cần hướng data-driven/generator này** — toàn bộ layout sẽ tiếp tục **xếp tay trực tiếp trên map trong Editor** (đúng như Phase 2 đã chốt). Đã xoá sạch các file trên khỏi `assets/Scripts/Data/`, `assets/Scripts/Level/`, `assets/resources/`.
+> Phase 7 coi như **không triển khai** — bỏ qua, chuyển thẳng sang Phase 8 khi cần polish core loop. Nếu sau này thật sự cần nhiều level khác nhau, quay lại cân nhắc hướng này (hoặc đơn giản hơn: mỗi level là 1 scene riêng, không cần JSON).
 
 ### Phase 8 — Polish core loop
 - [ ] Object Pooling cho `FruitItem`.
