@@ -1,0 +1,10 @@
+{
+  "name": "sprite-slicer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cut individual sprites out of a packed atlas image by detecting background regions.",
+  "main": "slice.js",
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
+}

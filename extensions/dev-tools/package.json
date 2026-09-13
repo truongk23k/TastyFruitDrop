@@ -1,0 +1,47 @@
+{
+  "package_version": 2,
+  "version": "1.0.0",
+  "name": "dev-tools",
+  "description": "Custom editor tools for TastyFruitDrop (Sprite Slicer, ...)",
+  "main": "./dist/main.js",
+  "dependencies": {
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "typescript": "^4.9.5"
+  },
+  "author": "truongk23k",
+  "editor": ">=3.8.0",
+  "scripts": {
+    "build": "tsc -b",
+    "watch": "tsc -w"
+  },
+  "panels": {
+    "sprite-slicer": {
+      "title": "Sprite Slicer",
+      "type": "dockable",
+      "main": "dist/panels/sprite-slicer",
+      "size": {
+        "min-width": 900,
+        "min-height": 600,
+        "width": 1100,
+        "height": 720
+      }
+    }
+  },
+  "contributions": {
+    "menu": [
+      {
+        "path": "Tools/Sprite Slicer",
+        "label": "Sprite Slicer",
+        "message": "open-sprite-slicer"
+      }
+    ],
+    "messages": {
+      "open-sprite-slicer": { "methods": ["openSpriteSlicer"] },
+      "pick-image": { "methods": ["pickImage"] },
+      "pick-output-folder": { "methods": ["pickOutputFolder"] }
+    }
+  }
+}
