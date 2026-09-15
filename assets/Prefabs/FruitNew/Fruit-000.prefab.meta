@@ -2,12 +2,12 @@
   "ver": "1.1.50",
   "importer": "prefab",
   "imported": true,
-  "uuid": "4505f932-25da-448d-9c4b-bf7be28079ab",
+  "uuid": "9efa615b-e013-4cb9-9440-4becb27943e9",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "FruitItem-007"
+    "syncNodeName": "Fruit-000"
   }
 }
