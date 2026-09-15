@@ -72,9 +72,10 @@ export class LayoutRowDescent extends Singleton {
             return;
         }
         const newBottomRow = this.rows[this.bottomIndex];
-        const validFruits = newBottomRow.fruits.filter(f => f.node && f.node.isValid);
+        // Quả đã tap coi như không còn trong layout nữa (đang rơi vật lý / đã ở Slot) — không dùng vị trí của nó để tính hàng đang neo ở đâu.
+        const validFruits = newBottomRow.fruits.filter(f => f.node && f.node.isValid && !f.tapped);
         if (validFruits.length === 0) {
-            console.log('Layout: hàng kế tiếp không còn quả nào (đã bị match hết trước đó), bỏ qua tính offset.');
+            console.log('Layout: hàng kế tiếp không còn quả nào (đã bị match hết hoặc tap hết trước đó), bỏ qua tính offset.');
             return;
         }
         const avgY = validFruits.reduce((sum, f) => sum + f.node.worldPosition.y, 0) / validFruits.length;

@@ -11,7 +11,7 @@ export class GameManager extends Singleton {
     fruitDatabase: FruitDatabase = null;
 
     @property
-    gravityY: number = -10;
+    gravityY: number = -22;
 
     state: GameState = GameState.Playing;
 
